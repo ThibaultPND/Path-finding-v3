@@ -29,9 +29,12 @@ void AddNode(Nodes **nodes, t_Costs costs, SDL_Point position)
         fprintf(stderr, "Erreur d'allocation !\n");
         exit(EXIT_FAILURE);
     }
-    newNode->costs = costs;
     newNode->prev = NULL;
-    newNode->position = position;
+    newNode->origin = NULL;
+
+    newNode->costs = costs;
+    newNode->position.x = position.x;
+    newNode->position.y = position.y;
     if (*nodes == NULL)
     {
         newNode->next = NULL;
@@ -61,7 +64,7 @@ void RemoveNode(Nodes **nodes, Nodes *nodeToRemove)
 
     if (nodeToRemove->next != NULL)
     {
-        nodeToRemove->next->prev == nodeToRemove->prev;
+        nodeToRemove->next->prev = nodeToRemove->prev;
     }
     free(nodeToRemove);
 }

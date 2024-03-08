@@ -93,7 +93,6 @@ void SearchSmallestPast(SDL_Point start, SDL_Point end, Nodes **close, Nodes **o
     *close = CreateNodes();
 
     AddNode(open, getCosts(0, start, start, end), start);
-    (*open)->origin = *open;
 
     uint32_t starter = SDL_GetTicks64();
     while (SDL_TRUE)
@@ -121,15 +120,22 @@ void SearchSmallestPast(SDL_Point start, SDL_Point end, Nodes **close, Nodes **o
 
             break;
         }
-
+        Nodes *stmg = current;
         // Pour tout les voisins de current.
-        for (int i = -1; i < 2; ++i)
-            for (int j = -1; j < 2; ++j)
+        printf("Début itération voisins de current");
+        int count = 0;
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
             {
+                printf("\n\tVoisin actuel {%d:%d}:\n", j, i);
                 // Verifier si le noeud actuel est traversable et si il n'est pas fermé.
                 SDL_Point neighbourPosition = {
-                    .x = current->position.x + i,
-                    .y = current->position.y + j};
+                    .x = current->position.x + j,
+                    .y = current->position.y + i};
+
+                printf("position : {%d:%d}\n", neighbourPosition.x, neighbourPosition.y);
+                printf("current  : {%d:%d}\n", current->position.x, current->position.y);
 
                 if (!PointExist(neighbourPosition))
                 {
@@ -161,7 +167,15 @@ void SearchSmallestPast(SDL_Point start, SDL_Point end, Nodes **close, Nodes **o
                     }
                 }
                 neighbour->origin = current;
+                count++;
             }
+        }
+        printf("Fin itération sur  les voisins (total : %d)", count);
+        if (stmg != current)
+        {
+            fprintf(stderr, "ALERTE  CURRENT WAS  CHANGED\n");
+            exit(1);
+        }
     }
     PrintNodes(*open);
 }
