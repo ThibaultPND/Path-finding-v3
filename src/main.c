@@ -43,8 +43,11 @@ int main(int argc, char *argv[])
 
     // Initialisation de la grille
     SDL_Point startPoint = {-1, -1}, endPoint = {-1, -1};
-    SDL_Point *path = NULL;
-    renderGrid(startPoint, endPoint);
+
+    Nodes *open = CreateNodes();
+    Nodes *close = CreateNodes();
+
+    renderGrid(startPoint, endPoint, close, open);
     SDL_RenderPresent(renderer);
 
     // Programme
@@ -64,6 +67,7 @@ int main(int argc, char *argv[])
                 {
                     // Point de départ.
                     startPoint = PositionInTheGrid();
+                    printf("Distance = %d ::: %d\n", getDistance(startPoint, endPoint), getDistance(endPoint, startPoint));
                 }
                 else if (event.button.button == SDL_BUTTON_RIGHT)
                 {
@@ -71,25 +75,35 @@ int main(int argc, char *argv[])
                     endPoint = PositionInTheGrid();
                 }
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_RETURN)
+                switch (event.key.keysym.sym)
                 {
+                case SDLK_RETURN:
                     if (!PointExist(startPoint) || !PointExist(endPoint))
                     {
                         ErrorBox("Les points de départ et d'arrivé ne sont pas tous défini. \nVeuillez utiliser les boutons de la souris pour les mettre en place");
                         break;
                     }
                     // Lancement de la recherche.
-                    renderGrid(startPoint, endPoint);
-                    SearchSmallestPast(startPoint, endPoint);
-                    SDL_RenderPresent(renderer);
-                    SDL_Delay(100000);
+                    SearchSmallestPast(startPoint, endPoint, &close, &open);
+                    break;
+                case SDLK_BACKSPACE:
+                    system("cls");
+                    printf("cleared`\n");
+                    ClearNodes(&open);
+                    PrintNodes(open);
+                    ClearNodes(&close);
+                    PrintNodes(close);
+                    startPoint.x = -1;
+                    startPoint.y = -1;
+                    endPoint.x = -1;
+                    endPoint.y = -1;
                 }
                 break;
             default:
                 break;
             }
         }
-        renderGrid(startPoint, endPoint);
+        renderGrid(startPoint, endPoint, close, open);
         SDL_RenderPresent(renderer);
 
         // Limitation du tps du programme à 60.
@@ -97,6 +111,8 @@ int main(int argc, char *argv[])
     }
 
     // Libération des ressources
+    ClearNodes(&open);
+    ClearNodes(&close);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

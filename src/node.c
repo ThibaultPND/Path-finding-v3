@@ -2,7 +2,6 @@
 #include "node.h"
 
 // Prototype
-int getDistance(SDL_Point start, SDL_Point end);
 
 // Function
 Nodes *CreateNodes()
@@ -15,7 +14,7 @@ void PrintNodes(Nodes *nodes)
     Nodes *current = nodes;
     while (current != NULL)
     {
-        printf("[%d]=>", current->costs.fCost);
+        printf("[%d:%d](%d) -> ", current->position.x, current->position.y, current->costs.fCost);
         current = current->next;
     }
     puts("NULL");
@@ -66,9 +65,9 @@ void RemoveNode(Nodes **nodes, Nodes *nodeToRemove)
     }
     free(nodeToRemove);
 }
-void ClearNodes(Nodes *nodes)
+void ClearNodes(Nodes **nodes)
 {
-    Nodes *current = nodes;
+    Nodes *current = *nodes;
     Nodes *next = NULL;
     while (current != NULL)
     {
@@ -76,15 +75,20 @@ void ClearNodes(Nodes *nodes)
         free(current);
         current = next;
     }
+    *nodes = NULL;
 }
 
-t_Costs getCosts(SDL_Point start, SDL_Point current, SDL_Point end)
+t_Costs getCosts(int originGcost, SDL_Point origin, SDL_Point current, SDL_Point end)
 {
     t_Costs costs = {
-        .gCost = getDistance(current, start),
+        .gCost = getDistance(origin, current) + originGcost,
         .hCost = getDistance(current, end)};
 
     costs.fCost = costs.gCost + costs.hCost;
+
+    printf("Costs for  (%d:%d) :\ngCost: %d, hCost: %d, fCost: %d\n",
+           current.x, current.y, costs.gCost, costs.hCost, costs.fCost);
+
     return costs;
 }
 

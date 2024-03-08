@@ -10,17 +10,17 @@
 // Macro dimensions fenêtre
 #define HAUTEUR_FENETRE 800
 #define LARGEUR_FENETRE 800
-#define GRID_SIZE 80
-#define TILE_SIZE 10
+#define GRID_SIZE 8
+#define TILE_SIZE 100
 
 extern SDL_Renderer *renderer;
 extern SDL_Window *window;
 
-void renderGrid(SDL_Point start, SDL_Point end); // 80x80
+void renderGrid(SDL_Point start, SDL_Point end, Nodes *close, Nodes *open); // 80x80
 SDL_Point PositionInTheGrid();
 SDL_bool PointExist(SDL_Point point);
 
-void SearchSmallestPast(SDL_Point start, SDL_Point end);
+void SearchSmallestPast(SDL_Point start, SDL_Point end, Nodes **close, Nodes **open);
 
 void ErrorBox(const char *message);
 

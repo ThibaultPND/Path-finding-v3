@@ -5,33 +5,31 @@ SDL_Window *window = NULL;
 
 Nodes *lowestFcost(Nodes *nodes);
 Nodes *inNodes(Nodes *nodes, SDL_Point position);
+void renderTile(Uint8 r, Uint8 g, Uint8 b, Uint8 x, Uint8 y);
 
-void renderGrid(SDL_Point start, SDL_Point end)
+void renderGrid(SDL_Point start, SDL_Point end, Nodes *close, Nodes *open)
 {
     // Remise à blanc
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
     if (PointExist(start))
-    {
-        SDL_SetRenderDrawColor(renderer, 0x00, 0xF5, 0x00, SDL_ALPHA_OPAQUE);
-        SDL_Rect startRect = {
-            .x = (start.x * 10) + 1,
-            .y = (start.y * 10) + 1,
-            .w = 9,
-            .h = 9};
-        SDL_RenderFillRect(renderer, &startRect);
-    }
+        renderTile(0, 0xF5, 0, start.x, start.y);
 
     if (PointExist(end))
+        renderTile(0xF5, 0, 0, end.x, end.y);
+
+    Nodes *current = close;
+    while (current != NULL)
     {
-        SDL_SetRenderDrawColor(renderer, 0xF5, 0x00, 0x00, SDL_ALPHA_OPAQUE);
-        SDL_Rect endRect = {
-            .x = (end.x * 10) + 1,
-            .y = (end.y * 10) + 1,
-            .w = 9,
-            .h = 9};
-        SDL_RenderFillRect(renderer, &endRect);
+        renderTile(0xFF, 0x80, 0, current->position.x, current->position.y);
+        current = current->next;
+    }
+    current = open;
+    while (current != NULL)
+    {
+        renderTile(0xAA, 0xAA, 0, current->position.x, current->position.y);
+        current = current->next;
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -59,12 +57,11 @@ void renderTile(Uint8 r, Uint8 g, Uint8 b,
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
     SDL_Rect Rect = {
-        .x = (x * 10) + 1,
-        .y = (y * 10) + 1,
-        .w = 9,
-        .h = 9};
+        .x = (x * TILE_SIZE) + 1,
+        .y = (y * TILE_SIZE) + 1,
+        .w = TILE_SIZE - 1,
+        .h = TILE_SIZE - 1};
     SDL_RenderFillRect(renderer, &Rect);
-    SDL_RenderPresent(renderer);
 }
 
 SDL_Point PositionInTheGrid()
@@ -86,35 +83,41 @@ SDL_bool PointExist(SDL_Point point)
     return SDL_FALSE;
 }
 
-void SearchSmallestPast(SDL_Point start, SDL_Point end)
+void SearchSmallestPast(SDL_Point start, SDL_Point end, Nodes **close, Nodes **open)
 {
     system("cls");
 
-    Nodes *open = CreateNodes();
-    Nodes *close = CreateNodes();
-    AddNode(&open, getCosts(start, start, end), start);
-    open->origin = open;
+    ClearNodes(open);
+    ClearNodes(close);
+    *open = CreateNodes();
+    *close = CreateNodes();
+
+    AddNode(open, getCosts(0, start, start, end), start);
+    (*open)->origin = *open;
 
     uint32_t starter = SDL_GetTicks64();
     while (SDL_TRUE)
     {
-        Nodes *current = lowestFcost(open);
+        Nodes *current = lowestFcost(*open);
 
-        RemoveNode(&open, current);
-        AddNode(&close, current->costs, current->position);
-        renderTile(0xAA, 0, 0, current->position.x, current->position.y);
+        printf("==( open )====\n");
+        PrintNodes(*open);
+        printf("current = %d (%d:%d)\n", current->costs.fCost, current->position.x, current->position.y);
+
+        RemoveNode(open, current);
+        AddNode(close, current->costs, current->position);
 
         // Chemin trouvé
         if (current->costs.hCost <= 0)
         {
             printf("Chemin trouvé en %d ms\n", SDL_GetTicks64() - starter);
-            Nodes *path = CreateNodes();
-            while (current->origin != current)
-            {
-                AddNode(&path, current->costs, current->position);
-                current = current->origin;
-            }
-            PrintNodes(path);
+            // Nodes *path = CreateNodes();
+            // while (current->origin != current)
+            // {
+            //     AddNode(&path, current->costs, current->position);
+            //     current = current->origin;
+            // }
+            // PrintNodes(path);
 
             break;
         }
@@ -129,24 +132,29 @@ void SearchSmallestPast(SDL_Point start, SDL_Point end)
                     .y = current->position.y + j};
 
                 if (!PointExist(neighbourPosition))
+                {
+                    printf("[-] do not exist > %d:%d\n", neighbourPosition.x, neighbourPosition.y);
                     continue;
+                }
 
                 // TODO Verifier si il y a  un mur.
                 // <
 
-                if (inNodes(close, neighbourPosition))
+                if (inNodes(*close, neighbourPosition))
+                {
+                    printf("[-] close  %d:%d\n", neighbourPosition.x, neighbourPosition.y);
                     continue;
+                }
 
-                Nodes *neighbour = inNodes(open, neighbourPosition);
+                Nodes *neighbour = inNodes(*open, neighbourPosition);
                 if (neighbour == NULL)
                 {
-                    AddNode(&open, getCosts(start, neighbourPosition, end), neighbourPosition);
-                    renderTile(0xAA, 0xAA, 0, neighbourPosition.x, neighbourPosition.y);
-                    neighbour = open;
+                    AddNode(open, getCosts(current->costs.gCost, current->position, neighbourPosition, end), neighbourPosition);
+                    neighbour = *open;
                 }
                 else
                 {
-                    t_Costs newPath = getCosts(start, neighbourPosition, end);
+                    t_Costs newPath = getCosts(current->costs.gCost, current->position, neighbourPosition, end);
                     if (newPath.fCost < neighbour->costs.fCost)
                     {
                         neighbour->costs = newPath;
@@ -155,9 +163,7 @@ void SearchSmallestPast(SDL_Point start, SDL_Point end)
                 neighbour->origin = current;
             }
     }
-    SDL_RenderPresent(renderer);
-    ClearNodes(open);
-    ClearNodes(close);
+    PrintNodes(*open);
 }
 
 Nodes *inNodes(Nodes *nodes, SDL_Point position)
@@ -179,6 +185,9 @@ Nodes *inNodes(Nodes *nodes, SDL_Point position)
 // Si deux noeud sont au minimum on prendra celuis avec le hcost le plus bas.
 Nodes *lowestFcost(Nodes *nodes)
 {
+    if (nodes == NULL)
+        return NULL;
+
     Nodes *current = nodes;
     Nodes *NodeWithLowestFcost = nodes;
 
