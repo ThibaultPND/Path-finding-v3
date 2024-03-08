@@ -11,6 +11,7 @@ gcc -o prog -Iinclude -Iinclude/SDL2 src/*.cpp -Llib -lSDL2main -lSDL2 -static -
 #include <Project.h>
 #include <SDL2/SDL.h>
 #include "TxUtils.h"
+#include "node.h"
 
 int main(int argc, char *argv[])
 {
@@ -78,6 +79,10 @@ int main(int argc, char *argv[])
                         break;
                     }
                     // Lancement de la recherche.
+                    renderGrid(startPoint, endPoint);
+                    SearchSmallestPast(startPoint, endPoint);
+                    SDL_RenderPresent(renderer);
+                    SDL_Delay(100000);
                 }
                 break;
             default:

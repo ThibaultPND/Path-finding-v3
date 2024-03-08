@@ -3,6 +3,9 @@
 SDL_Renderer *renderer = NULL;
 SDL_Window *window = NULL;
 
+Nodes *lowestFcost(Nodes *nodes);
+Nodes *inNodes(Nodes *nodes, SDL_Point position);
+
 void renderGrid(SDL_Point start, SDL_Point end)
 {
     // Remise à blanc
@@ -51,12 +54,17 @@ void renderGrid(SDL_Point start, SDL_Point end)
 }
 
 // TODO
-void renderTile(SDL_Renderer *renderer,
-                Uint8 r, Uint8 g, Uint8 b,
-                Uint8 a,
+void renderTile(Uint8 r, Uint8 g, Uint8 b,
                 Uint8 x, Uint8 y)
 {
-    //
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_Rect Rect = {
+        .x = (x * 10) + 1,
+        .y = (y * 10) + 1,
+        .w = 9,
+        .h = 9};
+    SDL_RenderFillRect(renderer, &Rect);
+    SDL_RenderPresent(renderer);
 }
 
 SDL_Point PositionInTheGrid()
@@ -76,6 +84,115 @@ SDL_bool PointExist(SDL_Point point)
         return SDL_TRUE;
     }
     return SDL_FALSE;
+}
+
+void SearchSmallestPast(SDL_Point start, SDL_Point end)
+{
+    system("cls");
+
+    Nodes *open = CreateNodes();
+    Nodes *close = CreateNodes();
+    AddNode(&open, getCosts(start, start, end), start);
+    open->origin = open;
+
+    uint32_t starter = SDL_GetTicks64();
+    while (SDL_TRUE)
+    {
+        Nodes *current = lowestFcost(open);
+
+        RemoveNode(&open, current);
+        AddNode(&close, current->costs, current->position);
+        renderTile(0xAA, 0, 0, current->position.x, current->position.y);
+
+        // Chemin trouvé
+        if (current->costs.hCost <= 0)
+        {
+            printf("Chemin trouvé en %d ms\n", SDL_GetTicks64() - starter);
+            Nodes *path = CreateNodes();
+            while (current->origin != current)
+            {
+                AddNode(&path, current->costs, current->position);
+                current = current->origin;
+            }
+            PrintNodes(path);
+
+            break;
+        }
+
+        // Pour tout les voisins de current.
+        for (int i = -1; i < 2; ++i)
+            for (int j = -1; j < 2; ++j)
+            {
+                // Verifier si le noeud actuel est traversable et si il n'est pas fermé.
+                SDL_Point neighbourPosition = {
+                    .x = current->position.x + i,
+                    .y = current->position.y + j};
+
+                if (!PointExist(neighbourPosition))
+                    continue;
+
+                // TODO Verifier si il y a  un mur.
+                // <
+
+                if (inNodes(close, neighbourPosition))
+                    continue;
+
+                Nodes *neighbour = inNodes(open, neighbourPosition);
+                if (neighbour == NULL)
+                {
+                    AddNode(&open, getCosts(start, neighbourPosition, end), neighbourPosition);
+                    renderTile(0xAA, 0xAA, 0, neighbourPosition.x, neighbourPosition.y);
+                    neighbour = open;
+                }
+                else
+                {
+                    t_Costs newPath = getCosts(start, neighbourPosition, end);
+                    if (newPath.fCost < neighbour->costs.fCost)
+                    {
+                        neighbour->costs = newPath;
+                    }
+                }
+                neighbour->origin = current;
+            }
+    }
+    SDL_RenderPresent(renderer);
+    ClearNodes(open);
+    ClearNodes(close);
+}
+
+Nodes *inNodes(Nodes *nodes, SDL_Point position)
+{
+    Nodes *current = nodes;
+    while (current != NULL)
+    {
+        if (current->position.x == position.x &&
+            current->position.y == position.y)
+        {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// Trouve le noeud avec le fcost le plus bas.
+// Si deux noeud sont au minimum on prendra celuis avec le hcost le plus bas.
+Nodes *lowestFcost(Nodes *nodes)
+{
+    Nodes *current = nodes;
+    Nodes *NodeWithLowestFcost = nodes;
+
+    while (current != NULL)
+    {
+        if ((current->costs.fCost < NodeWithLowestFcost->costs.fCost) ||
+            ((current->costs.fCost == NodeWithLowestFcost->costs.fCost) &&
+             (current->costs.hCost < NodeWithLowestFcost->costs.hCost)))
+        {
+            NodeWithLowestFcost = current;
+        }
+        current = current->next;
+    }
+    return NodeWithLowestFcost;
 }
 
 void ErrorBox(const char *message)

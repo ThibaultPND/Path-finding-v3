@@ -178,4 +178,5 @@ CMakeFiles/prog.dir/src/project.c.obj: \
  C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/SDL2/SDL_timer.h \
  C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/SDL2/SDL_version.h \
  C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/SDL2/SDL_locale.h \
- C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/SDL2/SDL_misc.h
+ C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/SDL2/SDL_misc.h \
+ C:/Users/thibl/Documents/GitHub/Path-finding-v3/include/node.h

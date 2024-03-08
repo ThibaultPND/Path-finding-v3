@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/prog.dir/src/TxUtils.c.obj.d"
   "CMakeFiles/prog.dir/src/main.c.obj"
   "CMakeFiles/prog.dir/src/main.c.obj.d"
+  "CMakeFiles/prog.dir/src/node.c.obj"
+  "CMakeFiles/prog.dir/src/node.c.obj.d"
   "CMakeFiles/prog.dir/src/project.c.obj"
   "CMakeFiles/prog.dir/src/project.c.obj.d"
   "libprog.dll.a"

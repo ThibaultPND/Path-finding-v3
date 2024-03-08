@@ -176,6 +176,30 @@ src/main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\prog.dir\build.make CMakeFiles/prog.dir/src/main.c.s
 .PHONY : src/main.c.s
 
+src/node.obj: src/node.c.obj
+.PHONY : src/node.obj
+
+# target to build an object file
+src/node.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\prog.dir\build.make CMakeFiles/prog.dir/src/node.c.obj
+.PHONY : src/node.c.obj
+
+src/node.i: src/node.c.i
+.PHONY : src/node.i
+
+# target to preprocess a source file
+src/node.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\prog.dir\build.make CMakeFiles/prog.dir/src/node.c.i
+.PHONY : src/node.c.i
+
+src/node.s: src/node.c.s
+.PHONY : src/node.s
+
+# target to generate assembly for a file
+src/node.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\prog.dir\build.make CMakeFiles/prog.dir/src/node.c.s
+.PHONY : src/node.c.s
+
 src/project.obj: src/project.c.obj
 .PHONY : src/project.obj
 
@@ -215,6 +239,9 @@ help:
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... src/node.obj
+	@echo ... src/node.i
+	@echo ... src/node.s
 	@echo ... src/project.obj
 	@echo ... src/project.i
 	@echo ... src/project.s

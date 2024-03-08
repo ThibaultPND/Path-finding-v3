@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/thibl/Documents/GitHub/Path-finding-v3/src/TxUtils.c" "CMakeFiles/prog.dir/src/TxUtils.c.obj" "gcc" "CMakeFiles/prog.dir/src/TxUtils.c.obj.d"
   "C:/Users/thibl/Documents/GitHub/Path-finding-v3/src/main.c" "CMakeFiles/prog.dir/src/main.c.obj" "gcc" "CMakeFiles/prog.dir/src/main.c.obj.d"
+  "C:/Users/thibl/Documents/GitHub/Path-finding-v3/src/node.c" "CMakeFiles/prog.dir/src/node.c.obj" "gcc" "CMakeFiles/prog.dir/src/node.c.obj.d"
   "C:/Users/thibl/Documents/GitHub/Path-finding-v3/src/project.c" "CMakeFiles/prog.dir/src/project.c.obj" "gcc" "CMakeFiles/prog.dir/src/project.c.obj.d"
   )
 
